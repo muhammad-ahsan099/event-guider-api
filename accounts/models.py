@@ -104,20 +104,16 @@ class Profile(models.Model):
         return self.user.name
 
 
-# class Wishlist(models.Model):
-#     user = models.OneToOneField(
-#         User, on_delete=models.CASCADE, related_name='user_wishlist')
-#     to_watch = models.ManyToManyField(
-#         'movies.Movie', related_name='towatch', blank=True)
-#     watched = models.ManyToManyField(
-#         'movies.Movie', related_name='watched', blank=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
+class Wishlist(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='user_wishlist')
+    to_wishlist = models.ManyToManyField(
+        'venues.Venue', related_name='towishlist', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-#     def __str__(self):
-#         return self.user.email 
-
-#         # return str(self.id)
+    def __str__(self):
+        return self.user.email 
 
 
 # class UserList(models.Model):

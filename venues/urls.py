@@ -1,7 +1,7 @@
 from django.urls import path
-from venues.views import VenueDetailView, RatingView, ReviewView
+from venues.views import VenueView, VenueDetailView, RatingView, ReviewView
 urlpatterns = [
-    # path('home-movies/', MovieView.as_view(), name='movie'),
+    path('home-venues/', VenueView.as_view(), name='venue'),
     path('venue/<int:pk>', VenueDetailView.as_view(), name='venue-detail'),
     # path('imdb-most-popular/', MostPopularMoviesView.as_view(), name='movie-most-popular'),
     # path('imdb-top-250-movies/', Top250MoviesView.as_view(), name='movie-top250-movies'),

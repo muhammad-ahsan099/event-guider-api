@@ -33,7 +33,7 @@ class Venue(models.Model):
     venue_id = models.CharField(
         max_length=10, blank=False, unique=True, default='v3032400')
     title = models.CharField(max_length=255)
-    price_per_head= models.CharField(max_length=5)
+    price_per_head= models.CharField(max_length=20)
     description = models.TextField(blank=True)
     features = ArrayField(
         models.CharField(max_length=3000), blank=True, default=list

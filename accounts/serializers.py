@@ -5,8 +5,8 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from accounts.utils import Util
 from django.shortcuts import get_object_or_404, redirect, render
-
-
+from venues.serializers import VenueSerializer, RatingSerializer, ReviewSerializer
+from accounts.models import Wishlist
 class UserRegistrationSerializer(serializers.ModelSerializer):
     # We are writing this becoz we need confirm password field in our Registratin Request
     password2 = serializers.CharField(
@@ -127,40 +127,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
                   'country', 'avatar']
 
 
-# class UserListSerializer(serializers.ModelSerializer):
-#     movies_list = MovieSerializer(many=True, read_only=True)
-#     celebrity_list = CelebritySerializer(many=True, read_only=True)
+class WishlistSerializer(serializers.ModelSerializer):
+    to_wishlist = VenueSerializer(many=True, read_only=True)
 
-#     class Meta:
-#         model = UserList
-#         fields = ['id', 'list_title', 'list_description',
-#                  'list_type', 'movies_list', 'celebrity_list']
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'to_wishlist',]
 
-# class WishlistSerializer(serializers.ModelSerializer):
-#     to_watch = MovieSerializer(many=True, read_only=True)
-#     watched = MovieSerializer(many=True, read_only=True)
 
-#     class Meta:
-#         model = Wishlist
-#         fields = ['id', 'to_watch', 'watched']
-
-    # def validate(self, attrs):
-    #     user = self.context.get('user')
-    #     wishlist_item = get_object_or_404(Movie, id=16)
-    #     if wishlist_item.towatch.filter(id=14).exists():
-    #         wishlist_item.towatch.remove(16)
-    #     else:
-    #         wishlist_item.towatch.add(16)
-        # return HttpResponseRedirect(request.META["HTTP_REFERER"])
-
-# class UserSerializer(serializers.ModelSerializer):
-#     profile = UserProfileSerializer(read_only=True)
-#     user_wishlist = WishlistSerializer(read_only=True)
-#     user_list = UserListSerializer(read_only=True)
-#     user_rating = RatingSerializer(read_only=True, many=True)
-#     user_review = ReviewSerializer(read_only=True, many=True)
-#     class Meta:
-#         model = User
-#     #   fields = ['id', 'name', 'email']
-#         fields = ['id', 'email', 'name', 'profile', 'user_wishlist', 'user_list', 'user_rating', 'user_review']
+class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(read_only=True)
+    user_wishlist = WishlistSerializer(read_only=True)
+    user_rating = RatingSerializer(read_only=True, many=True)
+    user_review = ReviewSerializer(read_only=True, many=True)
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'name', 'profile', 'user_wishlist', 'user_rating', 'user_review']
 

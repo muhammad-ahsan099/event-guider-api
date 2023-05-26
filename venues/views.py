@@ -24,11 +24,7 @@ class VenueView(ListAPIView):
 
     def get_queryset(self):
         current_day = datetime.today()
-        result = self.queryset.filter(released__gte=current_day -
-                                      timedelta(days=30),
-                                      released__lte=current_day +
-                                      timedelta(days=30)
-                                      )
+        result = self.queryset.all()
         if result.exists():
             return result
         raise ValidationError(
@@ -39,7 +35,7 @@ class VenueView(ListAPIView):
             }
         )
 
-class SearchMovies(ListAPIView):
+class SearchVenues(ListAPIView):
     queryset = Venue.objects.all()
     serializer_class = VenueDetailSerializer
     filter_backends = [filters.SearchFilter]

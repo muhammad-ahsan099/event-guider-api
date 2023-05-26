@@ -5,12 +5,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from accounts.models import Profile, User
-from accounts.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserPasswordResetSerializer, UserRegistrationSerializer
+from accounts.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserPasswordResetSerializer, UserRegistrationSerializer, UserSerializer
 from django.contrib.auth import authenticate
 from accounts.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from venues.models import Venue
+from accounts.models import Wishlist
 
 
 # Generate Token Manually
@@ -110,50 +112,50 @@ class UserPasswordResetView(APIView):
             status=status.HTTP_200_OK)
 
 
-# class UserProfileView(APIView):
-#     renderer_classes = [UserRenderer]
-#     permission_classes = [IsAuthenticated]
+class UserProfileView(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
 
-#     def get(self, request, format=None):
-#         serializer = UserSerializer(request.user)
-#         return Response(
-#             {
-#                 'message': 'Successfully fetched User Profile',
-#                 'success': True,
-#                 'status': status.HTTP_200_OK,
-#                 'data': serializer.data
-#             },
-#             status=status.HTTP_200_OK)
+    def get(self, request, format=None):
+        serializer = UserSerializer(request.user)
+        return Response(
+            {
+                'message': 'Successfully fetched User Profile',
+                'success': True,
+                'status': status.HTTP_200_OK,
+                'data': serializer.data
+            },
+            status=status.HTTP_200_OK)
 
 
-# class WishlistView(APIView):
-#     renderer_classes = [UserRenderer]
-#     permission_classes = [IsAuthenticated]
+class WishlistView(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
 
-#     def post(self, request, format=None):
-#         id = request.data
-#         print('to_watch id', id)
-#         movie = get_object_or_404(Movie, id=request.data['to_watch'])
-#         user_wishlist = Wishlist.objects.get_or_create(user=request.user)
-#         wishlist = Wishlist.objects.filter(
-#             user__email=user_wishlist[0], to_watch=movie).exists()
-#         if wishlist:
-#             Wishlist.objects.get(
-#                 user__email=user_wishlist[0]).to_watch.remove(movie)
-#             return Response(
-#                 {
-#                     'message': 'Successfully Removed from Wishlist',
-#                     'success': True,
-#                     'status': status.HTTP_200_OK,
-#                 },
-#                 status=status.HTTP_200_OK)
-#         else:
-#             Wishlist.objects.get(
-#                 user__email=user_wishlist[0]).to_watch.add(movie)
-#             return Response(
-#                 {
-#                     'message': 'Successfully Added to Wishlist',
-#                     'success': True,
-#                     'status': status.HTTP_201_CREATED,
-#                 },
-#                 status=status.HTTP_201_CREATED)
+    def post(self, request, format=None):
+        id = request.data
+        print('to_wishlist id', id)
+        venue = get_object_or_404(Venue, id=request.data['to_wishlist'])
+        user_wishlist = Wishlist.objects.get_or_create(user=request.user)
+        wishlist = Wishlist.objects.filter(
+            user__email=user_wishlist[0], to_wishlist=venue).exists()
+        if wishlist:
+            Wishlist.objects.get(
+                user__email=user_wishlist[0]).to_wishlist.remove(venue)
+            return Response(
+                {
+                    'message': 'Successfully Removed from Wishlist',
+                    'success': True,
+                    'status': status.HTTP_200_OK,
+                },
+                status=status.HTTP_200_OK)
+        else:
+            Wishlist.objects.get(
+                user__email=user_wishlist[0]).to_wishlist.add(venue)
+            return Response(
+                {
+                    'message': 'Successfully Added to Wishlist',
+                    'success': True,
+                    'status': status.HTTP_201_CREATED,
+                },
+                status=status.HTTP_201_CREATED)

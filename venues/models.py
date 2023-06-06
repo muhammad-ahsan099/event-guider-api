@@ -54,6 +54,8 @@ class Venue(models.Model):
     terms_conditions = ArrayField(
         models.CharField(max_length=1000), blank=True, default=list
     )
+    total_google_reviews=models.CharField(max_length=10, null=True, blank=True)
+    google_rating=models.CharField(max_length=10, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -54,6 +54,7 @@ class User(AbstractBaseUser):
         unique=True,
     )
     name = models.CharField(max_length=200)
+    phone_number = models.CharField(max_length=15)
     role = models.CharField(max_length=20,
                             choices=ROLE_CHOICES, blank=True, null=True, default=USER)
     is_admin = models.BooleanField(default=False)
@@ -96,7 +97,6 @@ class Profile(models.Model):
     gender = models.CharField(max_length=6, choices=GENDER)
     dob = models.DateField(auto_now=False, auto_now_add=False)
     country = models.CharField(max_length=255)
-    number = models.CharField(max_length=15)
     avatar = models.ImageField(upload_to='UserProfile/', blank=True)
 
 

@@ -33,18 +33,18 @@ class Venue(models.Model):
     venue_id = models.CharField(
         max_length=10, blank=False, unique=True, default='v3032400')
     title = models.CharField(max_length=255)
-    price_per_head= models.CharField(max_length=20)
+    price_per_head = models.CharField(max_length=20)
     description = models.TextField(blank=True)
     features = ArrayField(
         models.CharField(max_length=3000), blank=True, default=list
-    ) 
+    )
     city = models.CharField(max_length=255)
     type = models.CharField(max_length=10, choices=VENUE_TYPE)
     logo_url = models.TextField(
         validators=[URLValidator()], blank=True, max_length=2000)
     virtual_tour_url = models.TextField(
         validators=[URLValidator()], blank=True, max_length=2000)
-    address= models.CharField(max_length=1000)
+    address = models.CharField(max_length=1000)
     phone_number = models.CharField(max_length=20)
     whatsapp_number = models.CharField(max_length=20)
     email = models.EmailField()
@@ -60,27 +60,40 @@ class Venue(models.Model):
 
 class Rating(models.Model):
     ratings = models.CharField(max_length=10)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_rating')
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_rating')
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='user_rating', null=True, blank=True)
     venue = models.ForeignKey(
         Venue, related_name='venue_rating', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.name + ' / ' + self.venue.title
-    
+
 
 class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review', null=True, blank=True)
+    google_username = models.CharField(max_length=255, blank=True)
+    google_user_thumbnail = models.TextField(validators=[URLValidator()], blank=True, max_length=2000)
+    google_user_link = models.TextField(validators=[URLValidator()], blank=True, max_length=2000)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='venue_review')
     review_body = models.TextField(max_length=1000, blank=True)
+    google_user_rated = models.CharField(max_length=10, null=True, blank=True)
+    google_user_likes = models.PositiveIntegerField(default=0, null=True, blank=True)
+    google_review_link = models.TextField(validators=[URLValidator()], blank=True, max_length=2000)
+    google_review_date = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.name + ' / ' + self.venue.title
-    
+        if self.user:
+            return f"{self.user.name} / {self.venue.title}"
+        else:
+            return f"{self.google_username} / {self.venue.title}"
+
+
 
 class ReviewLikes(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='user_review_like')
+        User, on_delete=models.CASCADE, related_name='user_review_like', null=True, blank=True),
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='review_like')
     likes = models.PositiveIntegerField(default=0)
@@ -89,4 +102,3 @@ class ReviewLikes(models.Model):
 
     def __str__(self):
         return self.user.name + ' / ' + self.review.review_body
-

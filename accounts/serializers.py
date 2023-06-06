@@ -7,6 +7,8 @@ from accounts.utils import Util
 from django.shortcuts import get_object_or_404, redirect, render
 from venues.serializers import VenueSerializer, RatingSerializer, ReviewSerializer
 from accounts.models import Wishlist
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     # We are writing this becoz we need confirm password field in our Registratin Request
     password2 = serializers.CharField(
@@ -14,9 +16,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'name', 'role', 'password', 'password2']
+        fields = ['email', 'name', 'phone_number',
+                  'role', 'password', 'password2']
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
         }
 
     # Validating Password and Confirm Password while Registration
@@ -29,7 +32,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validate_data):
-        return User.objects.create_user(**validate_data)
+        print("Validated USer: ", validate_data)
+        user = User.objects.create_user(
+            name=validate_data['name'],
+            email=validate_data['email'],
+            password=validate_data['password'],
+        )
+        user.phone_number = validate_data['phone_number'] 
+
+        user.save()
+        return user
+        # return User.objects.create_user(**validate_data)
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -140,7 +153,8 @@ class UserSerializer(serializers.ModelSerializer):
     user_wishlist = WishlistSerializer(read_only=True)
     user_rating = RatingSerializer(read_only=True, many=True)
     user_review = ReviewSerializer(read_only=True, many=True)
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'profile', 'user_wishlist', 'user_rating', 'user_review']
-
+        fields = ['id', 'email', 'name', 'profile',
+                  'user_wishlist', 'user_rating', 'user_review']

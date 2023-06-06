@@ -14,7 +14,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
 from datetime import datetime, date, time, timedelta
 from rest_framework.exceptions import ValidationError
-
+from utils.utils import fetch_and_save_reviews
 
 class VenueView(ListAPIView):
     renderer_classes = [VenueRenderer]
@@ -144,17 +144,20 @@ class ReviewView(APIView):
     renderer_classes = [VenueRenderer]
 
     def get(self, request, format=None):
-        print('request: ', request.data)
-        venue_id = request.data['venueId']
-        reviews = Review.objects.filter(venue=venue_id)
-        serializer = ReviewSerializer(
-            reviews, many=True, context={'request': request})
+
+        req_url = "https://serpapi.com/search?engine=google_maps_reviews&data_id=0x3922420cf51b4e89:0x1c3e3f2c1baf3c03&api_key=e706de30a86041b5b0d85fdf57c1d109e5f583dadbab3e70979847a883c892f1"
+        print('req_url: ', req_url)
+        fetch_and_save_reviews(req_url)
+        # venue_id = request.data['venueId']
+        # reviews = Review.objects.filter(venue=venue_id)
+        # serializer = ReviewSerializer(
+        #     reviews, many=True, context={'request': request})
         return Response(
             {
                 'message': 'Successfully fetched Reviews',
                 'success': True,
                 'status': status.HTTP_200_OK,
-                'data': serializer.data
+                # 'data': serializer.data
             },
             status=status.HTTP_200_OK)
 

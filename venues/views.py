@@ -145,9 +145,10 @@ class ReviewView(APIView):
 
     def get(self, request, format=None):
 
-        req_url = "https://serpapi.com/search?engine=google_maps_reviews&data_id=0x3922420cf51b4e89:0x1c3e3f2c1baf3c03&api_key=e706de30a86041b5b0d85fdf57c1d109e5f583dadbab3e70979847a883c892f1"
-        print('req_url: ', req_url)
-        fetch_and_save_reviews(req_url)
+        # req_url = "https://serpapi.com/search?engine=google_maps_reviews&place_id=0x39226876bf2db8b7:0xdd6906ac75aaed24&api_key=e706de30a86041b5b0d85fdf57c1d109e5f583dadbab3e70979847a883c892f1"
+        # print('req_url: ', req_url)
+        # fetch_and_save_reviews(req_url)
+        
         # venue_id = request.data['venueId']
         # reviews = Review.objects.filter(venue=venue_id)
         # serializer = ReviewSerializer(

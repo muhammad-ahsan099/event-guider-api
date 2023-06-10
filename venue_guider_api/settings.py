@@ -85,15 +85,28 @@ WSGI_APPLICATION = 'venue_guider_api.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+print("DB Hostname", os.environ.get("DB_HOSTNAME"))
+print("DB Username", os.environ.get("DB_USERNAME"))
 
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'venue_guider',
+#         'USER': 'test-ahsan',
+#         'PASSWORD': '2233',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'venue_guider',
-        'USER': 'test-ahsan',
-        'PASSWORD': '2233',
-        'HOST': 'localhost',
-        'POST': '',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": os.environ.get("DB_NAME", "peaboxdbtwo"),
+        "USER": os.environ.get("DB_USERNAME"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOSTNAME", "127.0.0.1"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
 REST_FRAMEWORK = {

@@ -9,6 +9,7 @@ def fetch_and_save_reviews(url):
     reviews_data = response.json().get("reviews", [])
 
     # Process each review and save them into the database
+    current_venue = Venue.objects.get(id=24)
     for review_data in reviews_data:
         # Extract relevant fields from the review_data
         link = review_data.get("link")
@@ -35,8 +36,6 @@ def fetch_and_save_reviews(url):
         print("google_review_link:", link)
         print("Review snippet:", snippet)
         print("Review review_date:", review_date)
-
-        current_venue = Venue.objects.get(id=30)
 
         review = Review.objects.create(
             google_username=user_name,

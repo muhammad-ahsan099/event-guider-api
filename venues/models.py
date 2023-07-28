@@ -42,9 +42,13 @@ class Venue(models.Model):
     type = models.CharField(max_length=10, choices=VENUE_TYPE)
     logo_url = models.TextField(
         validators=[URLValidator()], blank=True, max_length=2000)
+    cover_photo = models.TextField(
+        validators=[URLValidator()], blank=True, max_length=2000)
     virtual_tour_url = models.TextField(
         validators=[URLValidator()], blank=True, max_length=2000)
     address = models.CharField(max_length=1000)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     phone_number = models.CharField(max_length=20)
     whatsapp_number = models.CharField(max_length=20)
     email = models.EmailField()

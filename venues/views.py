@@ -9,12 +9,13 @@ from venues.renderers import VenueRenderer
 from venues.serializers import  VenueDetailSerializer, VenueSerializer, RatingSerializer, ReviewSerializer
 # from accounts.renderers import UserRenderer
 from rest_framework.permissions import IsAuthenticated
-from .paginations import HomeMoviesResultsSetPagination, MyPagination
+from .paginations import MyPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
 from datetime import datetime, date, time, timedelta
 from rest_framework.exceptions import ValidationError
 from utils.utils import fetch_and_save_reviews
+from django.db.models import Q
 
 class VenueView(ListAPIView):
     renderer_classes = [VenueRenderer]
@@ -39,8 +40,31 @@ class SearchVenues(ListAPIView):
     queryset = Venue.objects.all()
     serializer_class = VenueDetailSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['^title']
+    search_fields = ['title', 'address', 'price_per_head', 'capacity']
 
+    def get_queryset(self):
+        query = self.request.query_params.get('search', '')
+        if query:
+            search_filters = Q()
+            for field in self.search_fields:
+                if field in ['price_per_head', 'capacity']:
+                    search_filters |= Q(**{field + '__lte': query})
+                else:
+                    search_filters |= Q(**{field + '__icontains': query})
+            return self.queryset.filter(search_filters)
+        return self.queryset
+
+
+class ViewedVenues(ListAPIView):
+    queryset = Venue.objects.all()
+    serializer_class = VenueDetailSerializer
+
+    def get_queryset(self):
+        ids = self.request.query_params.getlist('ids[]')
+        print("ids: ", ids)
+        if ids:
+            return self.queryset.filter(id__in=ids)
+        return self.queryset.none()
 
 
 # class Top250MoviesView(ListAPIView):
@@ -51,26 +75,42 @@ class SearchVenues(ListAPIView):
 #     ordering = ['-imdb_rating', 'year']
 
 
-# class MostPopularMoviesView(ListAPIView):
-#     renderer_classes = [MovieRenderer]
-#     queryset = Movie.objects.all()
-#     serializer_class = MovieSerializer
-#     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-#     ordering = ['-imdb_rating']
+class MostPopularVenuesView(ListAPIView):
+    renderer_classes = [VenueRenderer]
+    queryset = Venue.objects.all()
+    serializer_class = VenueSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    ordering = ['-total_google_reviews']
 
-#     def get_queryset(self):
-#         current_year = datetime.today().year
-#         print(current_year, 'year')
-#         result = self.queryset.filter(year__exact=current_year)
-#         if result.exists():
-#             return result
-#         raise ValidationError(
-#             {
-#                 'message': 'Error in fetching Most popular movies',
-#                 'success': False,
-#                 'status': status.HTTP_404_NOT_FOUND,
-#             }
-#         )
+    def get_queryset(self):
+        result = self.queryset.filter(total_google_reviews__gte=1000, total_google_reviews__isnull=False)
+        if result.exists():
+            return result
+        raise ValidationError(
+            {
+                'message': 'Error in fetching Most popular venues',
+                'success': False,
+                'status': status.HTTP_404_NOT_FOUND,
+            }
+        )
+class RecommendedVenuesView(ListAPIView):
+    renderer_classes = [VenueRenderer]
+    queryset = Venue.objects.all()
+    serializer_class = VenueSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    ordering = ['-google_rating']
+
+    def get_queryset(self):
+        result = self.queryset.filter(google_rating__gte="4.4", google_rating__isnull=False)
+        if result.exists():
+            return result
+        raise ValidationError(
+            {
+                'message': 'Error in fetching Most popular venues',
+                'success': False,
+                'status': status.HTTP_404_NOT_FOUND,
+            }
+        )
 
 
 # class TopPickMoviesView(ListAPIView):
@@ -145,20 +185,21 @@ class ReviewView(APIView):
 
     def get(self, request, format=None):
 
-        # req_url = "https://serpapi.com/search?engine=google_maps_reviews&place_id=0x39226876bf2db8b7:0xdd6906ac75aaed24&api_key=e706de30a86041b5b0d85fdf57c1d109e5f583dadbab3e70979847a883c892f1"
+        # req_url = "https://serpapi.com/search?engine=google_maps_reviews&place_id=0x39226e91ea8478f5:0x743742e131b44fc&api_key=e706de30a86041b5b0d85fdf57c1d109e5f583dadbab3e70979847a883c892f1"
         # print('req_url: ', req_url)
         # fetch_and_save_reviews(req_url)
         
         # venue_id = request.data['venueId']
-        # reviews = Review.objects.filter(venue=venue_id)
-        # serializer = ReviewSerializer(
-        #     reviews, many=True, context={'request': request})
+        reviews = Review.objects.filter(venue=10)
+        serializer = ReviewSerializer(
+            reviews, many=True, context={'request': request})
+        # print("Response: ", serializer.data)
         return Response(
             {
                 'message': 'Successfully fetched Reviews',
                 'success': True,
                 'status': status.HTTP_200_OK,
-                # 'data': serializer.data
+                'data': serializer.data
             },
             status=status.HTTP_200_OK)
 

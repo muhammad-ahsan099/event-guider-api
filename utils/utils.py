@@ -9,7 +9,7 @@ def fetch_and_save_reviews(url):
     reviews_data = response.json().get("reviews", [])
 
     # Process each review and save them into the database
-    current_venue = Venue.objects.get(id=24)
+    current_venue = Venue.objects.get(id=20)
     for review_data in reviews_data:
         # Extract relevant fields from the review_data
         link = review_data.get("link")
